@@ -1,31 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Box Breathing App</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="manifest" href="manifest.json">
-  <!-- iOS-specific tags for PWA -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Box Breathing">
-  <link rel="apple-touch-icon" href="icon-192.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Box Breathing">
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="manifest" href="manifest.json">
+    <title>Box Breathing App</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="total-time">00:00</div>
-  <div id="square">
-    <div id="marker"></div>
-  </div>
-  <div id="phase">Press Start to begin</div>
-  <div id="controls">
-    <input type="number" id="time-limit" placeholder="Time limit (min)">
-    <button id="set-2min">2 min</button>
-    <button id="set-5min">5 min</button>
-    <button id="set-10min">10 min</button>
-    <button id="start">Start</button>
-    <button id="stop" style="display:none;">Stop</button>
-  </div>
-  <script src="app.js"></script>
+    <div id="app">
+        <div id="timer">00:00</div>
+        <div id="animation-container">
+            <div id="box"></div>
+            <div id="circle"></div>
+        </div>
+        <div id="phase">Inhale</div>
+        <div id="controls">
+            <button onclick="startExercise(2)">2 min</button>
+            <button onclick="startExercise(5)">5 min</button>
+            <button onclick="startExercise(10)">10 min</button>
+            <div>
+                <input type="number" id="custom-time" placeholder="Custom minutes">
+                <button onclick="startCustomExercise()">Start</button>
+            </div>
+        </div>
+        <button id="stop" style="display: none;" onclick="stopExercise()">Stop</button>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
