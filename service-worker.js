@@ -3,13 +3,13 @@ const CACHE_NAME = 'box-breathing-cache-v1';
 
 // List of files to cache during installation
 const urlsToCache = [
-  './',                // Root of the app
-  './index.html',      // Main HTML file
-  './styles.css',      // CSS file for styling
-  './app.js',          // Main JavaScript file
-  './manifest.json',   // Web app manifest
-  './icon-192.png',    // App icon (adjust path/name as needed)
-  './icon-512.png'     // Larger app icon (adjust path/name as needed)
+  './',              // Root of the app
+  './index.html',    // Main HTML file
+  './style.css',     // CSS file for styling
+  './script.js',     // Main JavaScript file
+  './manifest.json', // Web app manifest
+  './icon.png',      // 192x192 app icon
+  './icon-512.png'   // 512x512 app icon
 ];
 
 // Install event: Cache essential files
