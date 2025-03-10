@@ -1,6 +1,6 @@
 body {
-  background-color: #000;
-  color: #fff;
+  background-color: #000; /* Black background for dark mode */
+  color: #fff; /* White text for contrast */
   font-family: Arial, sans-serif;
   display: flex;
   flex-direction: column;
@@ -15,14 +15,14 @@ body {
   top: 10px;
   right: 10px;
   font-size: 1.2em;
-  opacity: 0.7; /* Subtle, less eye-catching */
+  opacity: 0.7; /* Subtle appearance */
 }
 
 #square {
   position: relative;
   width: 200px;
   height: 200px;
-  border: 2px solid #fff;
+  border: 2px solid #fff; /* White border for the square */
   margin: 20px;
 }
 
@@ -30,12 +30,11 @@ body {
   position: absolute;
   width: 10px;
   height: 10px;
-  background-color: #ffa500; /* Warm orange */
+  background-color: #ffa500; /* Warm orange for visibility */
   border-radius: 50%;
   transform: translate(-50%, -50%);
   left: 0;
-  top: 0;
-  transition: left 0.1s linear, top 0.1s linear; /* Smooth animation */
+  top: 200px; /* Start at bottom-left */
 }
 
 #phase {
@@ -53,14 +52,14 @@ body {
   margin: 5px;
   padding: 10px;
   font-size: 1em;
-  background-color: #333;
+  background-color: #333; /* Dark gray buttons */
   color: #fff;
-  border: 1px solid #ffa500;
+  border: 1px solid #ffa500; /* Orange border */
   border-radius: 5px;
   cursor: pointer;
 }
 
 #controls button:hover {
-  background-color: #ffa500;
+  background-color: #ffa500; /* Orange on hover */
   color: #000;
 }
