@@ -1,114 +1,96 @@
-const T = 4; // Seconds per phase
+let animationId;
 let startTime;
-let isRunning = false;
-let stopAfterNextExhale = false;
-let timeLimit = null;
-let lastCycleTime = 0;
-let animationFrameId;
+let timeLimit;
+const phases = ['Inhale', 'Hold', 'Exhale', 'Wait'];
+const phaseDuration = 4000; // 4 seconds per phase
+const cycleDuration = phaseDuration * 4; // 16 seconds per cycle
 
-const squareSize = 200; // Square size in pixels
-const phaseNames = ['Inhale', 'Hold', 'Exhale', 'Wait'];
-
-// Set initial marker position to bottom-left
-document.getElementById('marker').style.left = '0px';
-document.getElementById('marker').style.top = squareSize + 'px';
-
-function formatTime(seconds) {
-  const min = Math.floor(seconds / 60);
-  const sec = Math.floor(seconds % 60);
-  return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+function startExercise(minutes) {
+    timeLimit = minutes * 60; // Convert to seconds
+    beginExercise();
 }
 
-function startExercise() {
-  const timeLimitMin = parseFloat(document.getElementById('time-limit').value);
-  if (!isNaN(timeLimitMin) && timeLimitMin > 0) {
-    timeLimit = timeLimitMin * 60; // Convert to seconds
-  } else {
-    timeLimit = null; // No time limit
-  }
-  startTime = performance.now();
-  isRunning = true;
-  stopAfterNextExhale = false;
-  lastCycleTime = 0;
-  document.getElementById('controls').style.display = 'none';
-  document.getElementById('stop').style.display = 'inline';
-  animationFrameId = requestAnimationFrame(animationLoop);
+function startCustomExercise() {
+    const customTime = document.getElementById('custom-time').value;
+    timeLimit = customTime ? parseInt(customTime) * 60 : null; // Optional limit
+    beginExercise();
+}
+
+function beginExercise() {
+    document.getElementById('controls').style.display = 'none';
+    document.getElementById('stop').style.display = 'block';
+    startTime = performance.now();
+    animate(startTime);
+    updateTimer();
 }
 
 function stopExercise() {
-  isRunning = false;
-  cancelAnimationFrame(animationFrameId);
-  document.getElementById('controls').style.display = 'flex';
-  document.getElementById('stop').style.display = 'none';
-  document.getElementById('phase').textContent = 'Press Start to begin';
-  document.getElementById('total-time').textContent = '00:00';
-  document.getElementById('marker').style.left = '0px';
-  document.getElementById('marker').style.top = squareSize + 'px';
+    cancelAnimationFrame(animationId);
+    clearInterval(timerInterval);
+    resetUI();
 }
 
-function animationLoop() {
-  if (!isRunning) return;
-  const currentTime = performance.now();
-  const elapsed = (currentTime - startTime) / 1000; // Seconds
-  const cycleTime = elapsed % (4 * T);
-  const phaseIndex = Math.floor(cycleTime / T);
-  const currentPhase = phaseNames[phaseIndex];
-  const timeIntoPhase = cycleTime % T;
-  const timeRemaining = T - timeIntoPhase;
-
-  // Update phase text
-  document.getElementById('phase').textContent = `${currentPhase}: ${Math.ceil(timeRemaining)}`;
-
-  // Update total time
-  document.getElementById('total-time').textContent = formatTime(elapsed);
-
-  // Update marker position
-  let x, y;
-  if (currentPhase === 'Inhale') {
-    x = 0;
-    y = squareSize - (timeIntoPhase / T) * squareSize;
-  } else if (currentPhase === 'Hold') {
-    x = (timeIntoPhase / T) * squareSize;
-    y = 0;
-  } else if (currentPhase === 'Exhale') {
-    x = squareSize;
-    y = (timeIntoPhase / T) * squareSize;
-  } else { // Wait
-    x = squareSize - (timeIntoPhase / T) * squareSize;
-    y = squareSize;
-  }
-  document.getElementById('marker').style.left = `${x}px`;
-  document.getElementById('marker').style.top = `${y}px`;
-
-  // Check if time limit is reached
-  if (timeLimit !== null && elapsed >= timeLimit && !stopAfterNextExhale) {
-    stopAfterNextExhale = true;
-  }
-  // Stop after exhale completes
-  if (stopAfterNextExhale && lastCycleTime < 3 * T && cycleTime >= 3 * T) {
-    stopExercise();
-  } else {
-    lastCycleTime = cycleTime;
-    animationFrameId = requestAnimationFrame(animationLoop);
-  }
+function resetUI() {
+    document.getElementById('controls').style.display = 'block';
+    document.getElementById('stop').style.display = 'none';
+    document.getElementById('phase').textContent = 'Inhale';
+    document.getElementById('timer').textContent = '00:00';
+    document.getElementById('circle').style.left = '0px';
+    document.getElementById('circle').style.top = '180px';
 }
 
-// Event listeners for buttons
-document.getElementById('set-2min').addEventListener('click', () => {
-  document.getElementById('time-limit').value = 2;
-});
-document.getElementById('set-5min').addEventListener('click', () => {
-  document.getElementById('time-limit').value = 5;
-});
-document.getElementById('set-10min').addEventListener('click', () => {
-  document.getElementById('time-limit').value = 10;
-});
-document.getElementById('start').addEventListener('click', startExercise);
-document.getElementById('stop').addEventListener('click', stopExercise);
+function animate(time) {
+    const elapsed = time - startTime;
+    const cycleTime = elapsed % cycleDuration;
+    const phaseIndex = Math.floor(cycleTime / phaseDuration) % 4;
+    document.getElementById('phase').textContent = phases[phaseIndex];
 
-// Register service worker for offline use
+    let left, top;
+    if (cycleTime < phaseDuration) { // Inhale: bottom left to top left
+        const progress = cycleTime / phaseDuration;
+        left = 0;
+        top = 180 - (180 * progress);
+    } else if (cycleTime < 2 * phaseDuration) { // Hold: top left to top right
+        const progress = (cycleTime - phaseDuration) / phaseDuration;
+        left = 180 * progress;
+        top = 0;
+    } else if (cycleTime < 3 * phaseDuration) { // Exhale: top right to bottom right
+        const progress = (cycleTime - 2 * phaseDuration) / phaseDuration;
+        left = 180;
+        top = 180 * progress;
+    } else { // Wait: bottom right to bottom left
+        const progress = (cycleTime - 3 * phaseDuration) / phaseDuration;
+        left = 180 - (180 * progress);
+        top = 180;
+    }
+    document.getElementById('circle').style.left = `${left}px`;
+    document.getElementById('circle').style.top = `${top}px`;
+
+    if (timeLimit && elapsed / 1000 >= timeLimit) {
+        if (phaseIndex === 2 && cycleTime >= 3 * phaseDuration - 100) { // End of exhale
+            stopExercise();
+            return;
+        }
+    }
+    animationId = requestAnimationFrame(animate);
+}
+
+let timerInterval;
+function updateTimer() {
+    timerInterval = setInterval(() => {
+        const elapsed = (performance.now() - startTime) / 1000;
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = Math.floor(elapsed % 60);
+        document.getElementById('timer').textContent = 
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }, 1000);
+}
+
+// Register service worker
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/service-worker.js')
-    .then(() => console.log('Service Worker registered'))
-    .catch(err => console.log('Service Worker error:', err));
+    navigator.serviceWorker.register('./service-worker.js').then(() => {
+        console.log('Service Worker registered');
+    }).catch(error => {
+        console.log('Service Worker registration failed:', error);
+    });
 }
